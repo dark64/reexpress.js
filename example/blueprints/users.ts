@@ -1,18 +1,56 @@
-import { Blueprint, Request } from "../../src/types";
-import { User, USERS } from "../models";
+import { Blueprint, Request, Get, Post, Put, Delete } from "../../src/index";
+import { User } from "../models";
 import { IsAuthenticatedRule } from "../rules";
 
-export class Users extends Blueprint<User> {
+// mock data
+let users: User[] = [
+  { id: 1, firstName: "John", lastName: "Smith" },
+  { id: 2, firstName: "Peter", lastName: "Parker" },
+];
+
+export class Users extends Blueprint {
   path = "/users";
   ruleset = [IsAuthenticatedRule];
 
+  @Get()
   async getMany() {
-    return USERS;
+    return users;
   }
 
+  @Get("/:id")
   async get(req: Request) {
-    const user = USERS.filter((u) => u.id == req.params.id)[0];
+    const user = users.filter((u) => u.id.toString() === req.params.id)[0];
     if (!user) throw { status: 404, message: "Entity not found" };
     return user;
+  }
+
+  @Post()
+  async post(req: Request) {
+    let user = {
+      id: users.length + 1,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+    };
+    users.push(user);
+    return user;
+  }
+
+  @Put("/:id")
+  async put(req: Request) {
+    if (!users[req.params.id])
+      throw { status: 404, message: "Entity not found" };
+
+    users[req.params.id] = {
+      id: req.params.id,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+    };
+    return users[req.params.id];
+  }
+
+  @Delete("/:id")
+  async delete(req: Request) {
+    users = users.filter((u) => u.id.toString() !== req.params.id);
+    return users;
   }
 }

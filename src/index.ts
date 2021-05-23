@@ -1,7 +1,8 @@
-import { json, urlencoded } from "body-parser";
+import "reflect-metadata";
 import express from "express";
 import helmet from "helmet";
 import winston from "winston";
+import { json, urlencoded } from "body-parser";
 import { Blueprint, Initializable } from "./types";
 
 export interface ReexpressOptions {
@@ -12,7 +13,7 @@ export interface ReexpressOptions {
   staticDir?: string;
 }
 
-export type RequestHandler = express.RequestHandler &
+export type ExpressRequestHandler = express.RequestHandler &
   express.ErrorRequestHandler;
 
 export class Reexpress {
@@ -54,7 +55,7 @@ export class Reexpress {
   /**
    * Register express request handlers
    */
-  use(...handlers: RequestHandler[]) {
+  use(...handlers: ExpressRequestHandler[]) {
     this._app.use(handlers);
   }
 
@@ -71,9 +72,6 @@ export class Reexpress {
    * Start listening
    */
   listen() {
-    this._app.get("/health", (_, res) =>
-      res.status(204).send("Up and running")
-    );
     this._app.get("*", (_, res) => res.sendStatus(404));
     this._app
       .listen(this._options.port, () => {
@@ -87,3 +85,6 @@ export class Reexpress {
       });
   }
 }
+
+export * from "./types";
+export * from "./decorators";
