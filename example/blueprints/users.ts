@@ -37,15 +37,16 @@ export class Users extends Blueprint {
 
   @Put("/:id")
   async put(req: Request) {
-    if (!users[req.params.id])
+    let id = parseInt(req.params.id);
+    if (!users[id])
       throw { status: 404, message: "Entity not found" };
 
-    users[req.params.id] = {
-      id: req.params.id,
+    users[id] = {
+      id,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
     };
-    return users[req.params.id];
+    return users[id];
   }
 
   @Delete("/:id")

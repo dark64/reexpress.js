@@ -69,6 +69,20 @@ export class Reexpress {
   }
 
   /**
+   * Register blueprints inside a group router
+   */
+  group(path: string, ...blueprints: Initializable<Blueprint>[]) {
+    let group = express.Router();
+    group.use(
+      path,
+      blueprints.map((blueprintType) =>
+        new blueprintType().register(express.Router())
+      )
+    );
+    this._app.use(group);
+  }
+
+  /**
    * Start listening
    */
   listen() {
